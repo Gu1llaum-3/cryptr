@@ -32,7 +32,7 @@ cryptr_help() {
   echo
   cat<<EOF | column -c2 -t -s,
   encrypt <file|directory>, Encrypt file or directory
-  decrypt <file.aes>, Decrypt encrypted file
+  decrypt <file.cryptr>, Decrypt encrypted file
   help, Displays help
   version, Displays the current version
 EOF
@@ -57,9 +57,9 @@ cryptr_encrypt() {
 
   if [[ ! -z "${CRYPTR_PASSWORD}" ]]; then
     echo "[notice] using environment variable CRYPTR_PASSWORD for the password"
-    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.aes" -pass env:CRYPTR_PASSWORD
+    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.cryptr" -pass env:CRYPTR_PASSWORD
   else
-    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.aes"
+    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.cryptr"
   fi
 
   # Check if encryption was successful
@@ -104,22 +104,22 @@ cryptr_decrypt() {
 
   if [[ ! -z "${CRYPTR_PASSWORD}" ]]; then
     echo "[notice] using environment variable CRYPTR_PASSWORD for the password"
-    openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.aes}" -pass env:CRYPTR_PASSWORD
+    openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.cryptr}" -pass env:CRYPTR_PASSWORD
   else
-    openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.aes}"
+    openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.cryptr}"
   fi
 
   # If the decrypted file is a tar.gz archive, prompt to extract it
-  if [[ "${_file%\.aes}" == *.tar.gz ]]; then
+  if [[ "${_file%\.cryptr}" == *.tar.gz ]]; then
     read -p "Do you want to extract the decrypted archive? (y/N): " extract_confirm
     if [[ "$extract_confirm" =~ ^[Yy]$ ]]; then
-      tar -xzf "${_file%\.aes}" -C "$(dirname "${_file%\.aes}")"
+      tar -xzf "${_file%\.cryptr}" -C "$(dirname "${_file%\.cryptr}")"
       echo "[notice] Archive extracted"
 
       # Ask the user if they want to delete the tar.gz file after extraction
       read -p "Do you want to delete the decrypted tar.gz file? (y/N): " delete_confirm
       if [[ "$delete_confirm" =~ ^[Yy]$ ]]; then
-        rm -f "${_file%\.aes}"
+        rm -f "${_file%\.cryptr}"
         echo "[notice] Decrypted tar.gz file deleted"
       else
         echo "[notice] Decrypted tar.gz file not deleted"
