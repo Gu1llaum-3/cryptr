@@ -29,7 +29,7 @@ cryptr_help() {
   echo "Usage: cryptr command <command-specific-options>"
   echo
   cat<<EOF | column -c2 -t -s,
-  encrypt <file>, Encrypt file
+  encrypt <file|directory>, Encrypt file or directory
   decrypt <file.aes>, Decrypt encrypted file
   help, Displays help
   version, Displays the current version
@@ -38,24 +38,30 @@ EOF
 }
 
 cryptr_encrypt() {
-  local _file="$1"
-  if [[ ! -f "$_file" ]]; then
-    echo "File not found" 1>&2
+  local _path="$1"
+  if [[ ! -e "$_path" ]]; then
+    echo "File or directory not found" 1>&2
     exit 4
+  fi
+
+  if [[ -d "$_path" ]]; then
+    # If it's a directory, archive it first
+    tar -czf "${_path}.tar.gz" -C "$(dirname "$_path")" "$(basename "$_path")"
+    _path="${_path}.tar.gz"
   fi
 
   if [[ ! -z "${CRYPTR_PASSWORD}" ]]; then
     echo "[notice] using environment variable CRYPTR_PASSWORD for the password"
-    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_file" -out "${_file}.aes" -pass env:CRYPTR_PASSWORD
+    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.aes" -pass env:CRYPTR_PASSWORD
   else
-    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_file" -out "${_file}.aes"
+    openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.aes"
   fi
 
   if [[ $? -eq 0 ]]; then
     read -p "Do you want to delete the original file? (y/N): " confirm
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
       echo "[notice] Deleting the original file"
-      rm -f "$_file"
+      rm -rf "$_path"
     else
       echo "[notice] Original file not deleted"
     fi
@@ -66,7 +72,7 @@ cryptr_encrypt() {
 }
 
 cryptr_decrypt() {
-local _file="$1"
+  local _file="$1"
   if [[ ! -f "$_file" ]]; then
     echo "File not found" 1>&2
     exit 5
@@ -77,6 +83,16 @@ local _file="$1"
     openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.aes}" -pass env:CRYPTR_PASSWORD
   else
     openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.aes}"
+  fi
+
+  if [[ "${_file%\.aes}" == *.tar.gz ]]; then
+    read -p "Do you want to extract the decrypted archive? (y/N): " extract_confirm
+    if [[ "$extract_confirm" =~ ^[Yy]$ ]]; then
+      tar -xzf "${_file%\.aes}" -C "$(dirname "${_file%\.aes}")"
+      echo "[notice] Archive extracted"
+    else
+      echo "[notice] Archive not extracted"
+    fi
   fi
 }
 
