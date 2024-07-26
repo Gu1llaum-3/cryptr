@@ -21,10 +21,12 @@ set -eo pipefail; [[ $TRACE ]] && set -x
 readonly VERSION="2.2.0"
 readonly OPENSSL_CIPHER_TYPE="aes-256-cbc"
 
+# Function to display the version of cryptr
 cryptr_version() {
   echo "cryptr $VERSION"
 }
 
+# Function to display the help message
 cryptr_help() {
   echo "Usage: cryptr command <command-specific-options>"
   echo
@@ -37,6 +39,7 @@ EOF
   echo
 }
 
+# Function to encrypt a file or directory
 cryptr_encrypt() {
   local _path="$1"
   local _is_directory=0
@@ -46,6 +49,7 @@ cryptr_encrypt() {
   fi
 
   if [[ -d "$_path" ]]; then
+    # If it's a directory, archive it first
     tar -czf "${_path}.tar.gz" -C "$(dirname "$_path")" "$(basename "$_path")"
     _path="${_path}.tar.gz"
     _is_directory=1
@@ -58,12 +62,14 @@ cryptr_encrypt() {
     openssl $OPENSSL_CIPHER_TYPE -salt -pbkdf2 -in "$_path" -out "${_path}.aes"
   fi
 
+  # Check if encryption was successful
   if [[ $? -eq 0 ]]; then
+    # Delete the tar.gz file if it was a directory
     if [[ $_is_directory -eq 1 ]]; then
       echo "[notice] Deleting the intermediate tar.gz file"
       rm -f "$_path"
     fi
-
+    # Ask the user if they want to delete the original directory
     if [[ $_is_directory -eq 1 ]]; then
       read -p "Do you want to delete the original directory? (y/N): " confirm
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
@@ -73,7 +79,7 @@ cryptr_encrypt() {
         echo "[notice] Original directory not deleted"
       fi
     else
-
+      # Ask the user if they want to delete the original file
       read -p "Do you want to delete the original file? (y/N): " confirm
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo "[notice] Deleting the original file"
@@ -88,6 +94,7 @@ cryptr_encrypt() {
   fi
 }
 
+# Function to decrypt a file
 cryptr_decrypt() {
   local _file="$1"
   if [[ ! -f "$_file" ]]; then
@@ -102,12 +109,14 @@ cryptr_decrypt() {
     openssl $OPENSSL_CIPHER_TYPE -d -salt -pbkdf2 -in "$_file" -out "${_file%\.aes}"
   fi
 
+  # If the decrypted file is a tar.gz archive, prompt to extract it
   if [[ "${_file%\.aes}" == *.tar.gz ]]; then
     read -p "Do you want to extract the decrypted archive? (y/N): " extract_confirm
     if [[ "$extract_confirm" =~ ^[Yy]$ ]]; then
       tar -xzf "${_file%\.aes}" -C "$(dirname "${_file%\.aes}")"
       echo "[notice] Archive extracted"
 
+      # Ask the user if they want to delete the tar.gz file after extraction
       read -p "Do you want to delete the decrypted tar.gz file? (y/N): " delete_confirm
       if [[ "$delete_confirm" =~ ^[Yy]$ ]]; then
         rm -f "${_file%\.aes}"
@@ -121,6 +130,7 @@ cryptr_decrypt() {
   fi
 }
 
+# Main function to handle the script commands
 cryptr_main() {
   local _command="$1"
 
@@ -155,6 +165,7 @@ cryptr_main() {
   esac
 }
 
+# Check if the script is being run directly
 if [[ "$0" == "$BASH_SOURCE" ]]; then
   cryptr_main "$@"
 fi
