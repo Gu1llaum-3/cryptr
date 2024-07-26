@@ -39,15 +39,16 @@ EOF
 
 cryptr_encrypt() {
   local _path="$1"
+  local _is_directory=0
   if [[ ! -e "$_path" ]]; then
     echo "File or directory not found" 1>&2
     exit 4
   fi
 
   if [[ -d "$_path" ]]; then
-    # If it's a directory, archive it first
     tar -czf "${_path}.tar.gz" -C "$(dirname "$_path")" "$(basename "$_path")"
     _path="${_path}.tar.gz"
+    _is_directory=1
   fi
 
   if [[ ! -z "${CRYPTR_PASSWORD}" ]]; then
@@ -58,15 +59,31 @@ cryptr_encrypt() {
   fi
 
   if [[ $? -eq 0 ]]; then
-    read -p "Do you want to delete the original file? (y/N): " confirm
-    if [[ "$confirm" =~ ^[Yy]$ ]]; then
-      echo "[notice] Deleting the original file"
-      rm -rf "$_path"
+    if [[ $_is_directory -eq 1 ]]; then
+      echo "[notice] Deleting the intermediate tar.gz file"
+      rm -f "$_path"
+    fi
+
+    if [[ $_is_directory -eq 1 ]]; then
+      read -p "Do you want to delete the original directory? (y/N): " confirm
+      if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo "[notice] Deleting the original directory"
+        rm -rf "${_path%.tar.gz}"
+      else
+        echo "[notice] Original directory not deleted"
+      fi
     else
-      echo "[notice] Original file not deleted"
+
+      read -p "Do you want to delete the original file? (y/N): " confirm
+      if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        echo "[notice] Deleting the original file"
+        rm -f "$_path"
+      else
+        echo "[notice] Original file not deleted"
+      fi
     fi
   else
-    echo "[error] Encryption failed, original file not deleted" 1>&2
+    echo "[error] Encryption failed, original file/directory not deleted" 1>&2
     exit 6
   fi
 }
