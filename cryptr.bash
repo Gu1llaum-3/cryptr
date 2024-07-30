@@ -30,7 +30,7 @@ cryptr_help() {
   echo
   cat<<EOF | column -c2 -t -s,
   encrypt <file|directory>, Encrypt file or directory
-  decrypt <file.aes>, Decrypt encrypted file
+  decrypt <file.aes|directory.tar.gz.aes>, Decrypt encrypted file or directory
   help, Displays help
   version, Displays the current version
 EOF
