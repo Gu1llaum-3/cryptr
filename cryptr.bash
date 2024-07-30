@@ -76,10 +76,8 @@ cryptr_encrypt() {
 
       read -p "Do you want to delete the original file? (y/N): " confirm
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        echo "[notice] Deleting the original file"
+        echo "[notice] deleting the original file"
         rm -f "$_path"
-      else
-        echo "[notice] Original file not deleted"
       fi
     fi
   else
