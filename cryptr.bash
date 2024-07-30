@@ -60,17 +60,17 @@ cryptr_encrypt() {
 
   if [[ $? -eq 0 ]]; then
     if [[ $_is_directory -eq 1 ]]; then
-      echo "[notice] Deleting the intermediate tar.gz file"
+      echo "[notice] deleting the intermediate tar.gz file"
       rm -f "$_path"
     fi
 
     if [[ $_is_directory -eq 1 ]]; then
       read -p "Do you want to delete the original directory? (y/N): " confirm
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
-        echo "[notice] Deleting the original directory"
+        echo "[notice] deleting the original directory"
         rm -rf "${_path%.tar.gz}"
       else
-        echo "[notice] Original directory not deleted"
+        echo "[notice] original directory not deleted"
       fi
     else
 
@@ -81,7 +81,7 @@ cryptr_encrypt() {
       fi
     fi
   else
-    echo "[error] Encryption failed, original file/directory not deleted" 1>&2
+    echo "[error] encryption failed, original file/directory not deleted" 1>&2
     exit 6
   fi
 }
@@ -104,17 +104,17 @@ cryptr_decrypt() {
     read -p "Do you want to extract the decrypted archive? (y/N): " extract_confirm
     if [[ "$extract_confirm" =~ ^[Yy]$ ]]; then
       tar -xzf "${_file%\.aes}" -C "$(dirname "${_file%\.aes}")"
-      echo "[notice] Archive extracted"
+      echo "[notice] archive extracted"
 
       read -p "Do you want to delete the decrypted tar.gz file? (y/N): " delete_confirm
       if [[ "$delete_confirm" =~ ^[Yy]$ ]]; then
         rm -f "${_file%\.aes}"
-        echo "[notice] Decrypted tar.gz file deleted"
+        echo "[notice] decrypted tar.gz file deleted"
       else
-        echo "[notice] Decrypted tar.gz file not deleted"
+        echo "[notice] decrypted tar.gz file not deleted"
       fi
     else
-      echo "[notice] Archive not extracted"
+      echo "[notice] archive not extracted"
     fi
   fi
 }
