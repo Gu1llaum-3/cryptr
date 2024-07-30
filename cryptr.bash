@@ -69,8 +69,6 @@ cryptr_encrypt() {
       if [[ "$confirm" =~ ^[Yy]$ ]]; then
         echo "[notice] deleting the original directory"
         rm -rf "${_path%.tar.gz}"
-      else
-        echo "[notice] original directory not deleted"
       fi
     else
 
@@ -110,11 +108,7 @@ cryptr_decrypt() {
       if [[ "$delete_confirm" =~ ^[Yy]$ ]]; then
         rm -f "${_file%\.aes}"
         echo "[notice] decrypted tar.gz file deleted"
-      else
-        echo "[notice] decrypted tar.gz file not deleted"
       fi
-    else
-      echo "[notice] archive not extracted"
     fi
   fi
 }
