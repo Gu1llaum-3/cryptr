@@ -60,7 +60,6 @@ cryptr_encrypt() {
 
   if [[ $? -eq 0 ]]; then
     if [[ $_is_directory -eq 1 ]]; then
-      echo "[notice] deleting the intermediate tar.gz file"
       rm -f "$_path"
     fi
 
