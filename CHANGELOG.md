@@ -3,7 +3,7 @@ CHANGELOG
 
 ## 3.0.0 - *1/8/2025*
 
-- Fork from cryptr to create cryptr+
+- Fork from cryptr to create cryptrex (Cryptr Extended)
 - Added support for directory encryption/decryption using tar.gz
 - Updated all documentation and tests
 - Improved shell completion support:

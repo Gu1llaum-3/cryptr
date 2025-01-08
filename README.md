@@ -1,14 +1,14 @@
-# cryptr
+# cryptrex (Cryptr Extended)
 
 #### An enhanced shell utility for encrypting and decrypting files and directories using OpenSSL.
 
-This is a fork of [cryptr](https://github.com/nodesocket/cryptr) by Justin Keller, with added support for directory encryption.
+This is a fork of [cryptr](https://github.com/nodesocket/cryptr) by Justin Keller, with added support for directory encryption and improved shell completion.
 
 ## Installation
 
 ```
-git clone https://github.com/Gu1llaum-3/cryptr.git
-ln -s "$PWD"/cryptr/cryptr.bash /usr/local/bin/cryptr
+git clone https://github.com/Gu1llaum-3/cryptrex.git
+ln -s "$PWD"/cryptrex/cryptr.bash /usr/local/bin/cryptr
 ```
 
 ### Shell Completion
@@ -132,7 +132,7 @@ See CHANGELOG.md
 
 ## Support, Bugs, And Feature Requests
 
-Create issues here in GitHub (https://github.com/Gu1llaum-3/cryptr/issues).
+Create issues here in GitHub (https://github.com/Gu1llaum-3/cryptrex/issues).
 
 ## Versioning
 
