@@ -152,7 +152,7 @@ For more information on semantic versioning, visit http://semver.org/.
 
 ## License & Legal
 
-Copyright 2024 Guillaume Archambault
+Copyright 2025 Guillaume Archambault
 Based on cryptr by Justin Keller
 
 Licensed under the Apache License, Version 2.0 (the "License");
